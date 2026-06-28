@@ -42,9 +42,9 @@ const CONFIG = {
     Tuesday:   "Closed",
     Wednesday: "Closed",
     Thursday:  "Closed",
-    Friday:    "9:00 AM – 7:00 PM",
-    Saturday:  "9:00 AM – 5:00 PM",
-    Sunday:    "10:00 AM – 4:00 PM",
+    Friday:    "8:00 AM – 9:00 PM",
+    Saturday:  "8:00 AM – 9:00 PM",
+    Sunday:    "8:00 AM – 9:00 PM",
   },
 };
 
