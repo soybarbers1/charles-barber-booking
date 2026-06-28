@@ -216,20 +216,34 @@ function buildSubject(d) {
 
 /* Pick the delivery method, then send in the background. */
 async function sendRequest(d) {
+  // FormSubmit (and most form services) reject requests from a page opened
+  // as a local file. Catch that early with a clear message.
+  if (location.protocol === "file:" && !CONFIG.web3formsKey) {
+    note("This is the local preview — sending only works on the live website. "
+       + "Open your hosted link to send a real request.", "err");
+    return;
+  }
+
   const btn = $("#submitBtn");
   btn.disabled = true;
   btn.textContent = "Sending…";
   note("");
 
   try {
-    const ok = CONFIG.web3formsKey ? await sendViaWeb3Forms(d) : await sendViaFormSubmit(d);
-    if (!ok) throw new Error("Submission rejected");
+    if (CONFIG.web3formsKey) await sendViaWeb3Forms(d);
+    else await sendViaFormSubmit(d);
     note("Thank you! Your request has been sent — we'll confirm by email soon.", "ok");
     toast("Request sent ✓");
     $("#bookingForm").reset();
   } catch (err) {
-    note("Sorry, something went wrong sending your request. Please email us directly at "
-       + CONFIG.ownerEmail + ".", "err");
+    if (/activat/i.test(err.message || "")) {
+      note("This booking form needs a one-time activation. Please check the "
+         + CONFIG.ownerEmail + " inbox for the “Activate Form” email, click the link, "
+         + "then submit again.", "err");
+    } else {
+      note("Sorry, something went wrong sending your request. Please email us directly at "
+         + CONFIG.ownerEmail + ".", "err");
+    }
   } finally {
     btn.disabled = false;
     btn.textContent = "Send appointment request";
@@ -255,7 +269,8 @@ async function sendViaFormSubmit(d) {
     }),
   });
   const out = await res.json().catch(() => ({}));
-  return out.success === true || out.success === "true";
+  if (out.success === true || out.success === "true") return true;
+  throw new Error(out.message || "FormSubmit rejected the request");
 }
 
 /* Optional: Web3Forms — used instead when CONFIG.web3formsKey is set. */
