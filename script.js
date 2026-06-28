@@ -85,7 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
   applyBranding();
   renderServices();
   renderServiceOptions();
-  renderAbout();
   renderHours();
   renderContact();
   renderMap();
