@@ -11,7 +11,7 @@ const CONFIG = {
   // ---- Where requests are sent ----
   ownerEmail: "soybarbers1@gmail.com",
   phone: "",                    // optional, e.g. "(555) 123-4567" — leave "" to hide
-  address: "",                  // optional, e.g. "123 Main St, Springfield" — leave "" to hide
+  address: "2785 Strathmore Rd, Victoria, BC V9B 3X4, Canada",  // optional — leave "" to hide
 
   /*  HOW REQUESTS ARE SENT  (no email app ever opens)
    *  ─────────────────────────────────────────────────
@@ -43,7 +43,7 @@ const CONFIG = {
     Wednesday: "Closed",
     Thursday:  "Closed",
     Friday:    "9:00 AM – 7:00 PM",
-    Saturday:  "Closed",
+    Saturday:  "9:00 AM – 5:00 PM",
     Sunday:    "10:00 AM – 4:00 PM",
   },
 };
