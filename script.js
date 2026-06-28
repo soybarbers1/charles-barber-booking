@@ -40,6 +40,8 @@ const CONFIG = {
 
   // ---- Note shown under the opening hours (leave "" to hide) ----
   hoursNote: "Monday to Friday I'll be at Brothers Barbershop in Downtown Victoria.",
+  hoursNoteName: "Brothers Barbershop",
+  hoursNoteAddress: "770 Fort St, Victoria, BC V8W 1H2, Canada",
 
   // ---- Headline stats ----
   stats: [
@@ -248,8 +250,15 @@ function renderHours() {
 
   const noteEl = $("#hoursNote");
   if (noteEl) {
-    if (CONFIG.hoursNote) noteEl.innerHTML = `<span aria-hidden="true">📍</span> ${esc(CONFIG.hoursNote)}`;
-    else noteEl.remove();
+    if (CONFIG.hoursNote) {
+      let html = `<span class="hn-icon" aria-hidden="true">📍</span><span class="hn-body">${esc(CONFIG.hoursNote)}`;
+      if (CONFIG.hoursNoteAddress) {
+        const q = encodeURIComponent([CONFIG.hoursNoteName, CONFIG.hoursNoteAddress].filter(Boolean).join(", "));
+        html += `<br /><a href="https://www.google.com/maps?q=${q}" target="_blank" rel="noopener">${esc(CONFIG.hoursNoteAddress)} · View on map ↗</a>`;
+      }
+      html += `</span>`;
+      noteEl.innerHTML = html;
+    } else noteEl.remove();
   }
 }
 
