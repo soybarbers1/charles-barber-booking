@@ -83,7 +83,6 @@ initTheme();
 
 document.addEventListener("DOMContentLoaded", () => {
   applyBranding();
-  renderStats();
   renderServices();
   renderServiceOptions();
   renderAbout();
