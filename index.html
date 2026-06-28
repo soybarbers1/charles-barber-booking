@@ -3,27 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Book an Appointment</title>
-  <meta name="description" content="Request an appointment online — quick, easy, and confirmed by email." />
+  <title>Charles Barber — Book Online</title>
+  <meta name="description" content="Charles Barber in Victoria, BC — fresh fades, classic cuts & beard trims. Book your chair online in under a minute." />
+  <meta name="theme-color" content="#0f8a6a" />
+
+  <!-- Social share preview -->
+  <meta property="og:title" content="Charles Barber — Book Online" />
+  <meta property="og:description" content="Fresh fades, classic cuts & beard trims in Victoria, BC. Book your chair online in under a minute." />
+  <meta property="og:image" content="https://soybarbers1.github.io/charles-barber-booking/logo.png" />
+  <meta property="og:url" content="https://soybarbers1.github.io/charles-barber-booking/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="scroll-progress" id="scrollProgress"></div>
+
   <!-- ===== Header ===== -->
   <header class="site-header">
     <div class="wrap header-inner">
       <a class="brand" href="#top">
         <img class="brand-logo" src="logo.png" alt="" aria-hidden="true" />
-        <span class="brand-name" data-bind="businessName">Your Business</span>
+        <span class="brand-name" data-bind="businessName">Charles Barber</span>
       </a>
       <nav class="nav">
         <a href="#services">Services</a>
-        <a href="#hours">Hours</a>
+        <a href="#about">About</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#faq">FAQ</a>
         <a href="#book" class="btn btn-sm">Book now</a>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle light / dark">🌙</button>
       </nav>
     </div>
   </header>
@@ -31,44 +47,82 @@
   <!-- ===== Hero ===== -->
   <section class="hero" id="top">
     <div class="wrap hero-inner">
-      <div class="hero-copy">
-        <p class="eyebrow">Online booking</p>
-        <h1>Reserve your spot in seconds.</h1>
-        <p class="lead" data-bind="tagline">Pick a service, choose a time that works for you, and we'll confirm your appointment by email.</p>
+      <div class="hero-copy reveal">
+        <p class="eyebrow status-pill" id="statusBadge"><span class="status-dot"></span> Checking hours…</p>
+        <h1>Look sharp.<br /><span class="grad-text">Book in seconds.</span></h1>
+        <p class="lead" data-bind="tagline">Fresh fades, classic cuts and clean beard work — reserve your chair online and we'll confirm by email.</p>
         <div class="hero-cta">
-          <a href="#book" class="btn btn-lg">Request an appointment</a>
-          <a href="#services" class="btn btn-ghost btn-lg">See services</a>
+          <a href="#book" class="btn btn-lg">Book an appointment</a>
+          <a href="#services" class="btn btn-ghost btn-lg">View services &amp; prices</a>
         </div>
         <ul class="hero-points">
           <li><span aria-hidden="true">✓</span> No account needed</li>
           <li><span aria-hidden="true">✓</span> Reply within 24 hours</li>
-          <li><span aria-hidden="true">✓</span> Free to request</li>
+          <li><span aria-hidden="true">✓</span> Cash only</li>
         </ul>
       </div>
-      <div class="hero-card">
-        <img class="hero-logo" src="logo.png" alt="Charles Barber logo" />
+      <div class="hero-card reveal">
+        <div class="hero-logo-wrap">
+          <img class="hero-logo" src="logo.png" alt="Charles Barber logo" />
+        </div>
       </div>
     </div>
+  </section>
+
+  <!-- ===== Stats ===== -->
+  <section class="stats">
+    <div class="wrap stats-grid reveal" id="statsGrid"></div>
   </section>
 
   <!-- ===== Services ===== -->
   <section class="section" id="services">
     <div class="wrap">
-      <header class="section-head">
-        <h2>Services</h2>
+      <header class="section-head reveal">
+        <p class="kicker">What we do</p>
+        <h2>Services &amp; pricing</h2>
         <p>Choose what you need — every booking is reviewed personally.</p>
       </header>
-      <div class="services-grid" id="servicesGrid">
-        <!-- filled by script.js -->
+      <div class="services-grid" id="servicesGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== About ===== -->
+  <section class="section section-alt" id="about">
+    <div class="wrap about-layout">
+      <div class="about-media reveal">
+        <div class="about-img-wrap">
+          <img src="logo.png" alt="" class="about-img" aria-hidden="true" />
+        </div>
+        <div class="about-badge"><strong id="estYear">2015</strong><span>Est.</span></div>
+      </div>
+      <div class="about-copy reveal">
+        <p class="kicker">About the shop</p>
+        <h2 data-bind="businessName">Charles Barber</h2>
+        <p id="aboutText"></p>
+        <ul class="about-features" id="aboutFeatures"></ul>
+        <a href="#book" class="btn">Book your chair</a>
       </div>
     </div>
   </section>
 
-  <!-- ===== Booking + Hours ===== -->
+  <!-- ===== Reviews ===== -->
+  <section class="section" id="reviews">
+    <div class="wrap">
+      <header class="section-head reveal">
+        <p class="kicker">Happy clients</p>
+        <h2>What people say</h2>
+        <p id="reviewsSub">Real words from the chair.</p>
+      </header>
+      <div class="reviews-grid" id="reviewsGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== Booking + sidebar ===== -->
   <section class="section section-alt" id="book">
     <div class="wrap book-layout">
-      <div class="book-form-col">
+      <div class="book-form-col reveal">
         <header class="section-head left">
+          <p class="kicker">Reserve your spot</p>
           <h2>Request an appointment</h2>
           <p>Fill this out and we'll get an email instantly. We'll confirm your time by reply.</p>
         </header>
@@ -86,7 +140,7 @@
             </div>
             <div class="field">
               <label for="phone">Phone</label>
-              <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="(555) 123-4567" />
+              <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="(250) 123-4567" />
             </div>
           </div>
 
@@ -94,7 +148,6 @@
             <label for="service">Service <span class="req">*</span></label>
             <select id="service" name="service" required>
               <option value="" disabled selected>Select a service…</option>
-              <!-- options filled by script.js -->
             </select>
           </div>
 
@@ -114,7 +167,6 @@
             <textarea id="notes" name="notes" rows="3" placeholder="Anything we should know?"></textarea>
           </div>
 
-          <!-- anti-spam honeypot: hidden from people, tempting to bots -->
           <div class="hp" aria-hidden="true">
             <label>Leave this empty</label>
             <input type="text" id="company" name="company" tabindex="-1" autocomplete="off" />
@@ -125,43 +177,93 @@
         </form>
       </div>
 
-      <aside class="hours-col" id="hours">
-        <div class="hours-card">
+      <aside class="book-side">
+        <!-- Live booking summary -->
+        <div class="summary-card reveal" id="summaryCard">
+          <h3>Your booking</h3>
+          <div id="summaryBody" class="summary-empty">Pick a service, date and time to see your summary here.</div>
+        </div>
+
+        <!-- Hours / contact / map -->
+        <div class="hours-card reveal" id="hours">
+          <div class="status-line" id="statusLine"><span class="status-dot"></span> <span id="statusLineText">Checking hours…</span></div>
           <h3>Opening hours</h3>
-          <ul class="hours-list" id="hoursList">
-            <!-- filled by script.js -->
-          </ul>
+          <ul class="hours-list" id="hoursList"></ul>
           <hr />
           <h3>Get in touch</h3>
-          <p class="contact-line">
-            <span aria-hidden="true">✉</span>
-            <a id="contactEmail" href="#">email us</a>
-          </p>
-          <p class="contact-line" id="contactPhoneWrap">
-            <span aria-hidden="true">☎</span>
-            <a id="contactPhone" href="#">call us</a>
-          </p>
-          <p class="contact-line" id="contactAddrWrap">
-            <span aria-hidden="true">⌖</span>
-            <span id="contactAddr"></span>
-          </p>
+          <p class="contact-line"><span aria-hidden="true">✉</span> <a id="contactEmail" href="#">email us</a></p>
+          <p class="contact-line" id="contactPhoneWrap"><span aria-hidden="true">☎</span> <a id="contactPhone" href="#">call us</a></p>
+          <p class="contact-line" id="contactAddrWrap"><span aria-hidden="true">⌖</span> <a id="contactAddr" target="_blank" rel="noopener"></a></p>
           <hr />
           <h3>Payment</h3>
           <p class="contact-line"><span aria-hidden="true">💵</span> Cash only</p>
+          <div class="map-wrap" id="mapWrap"></div>
         </div>
       </aside>
     </div>
   </section>
 
+  <!-- ===== FAQ ===== -->
+  <section class="section" id="faq">
+    <div class="wrap narrow">
+      <header class="section-head reveal">
+        <p class="kicker">Good to know</p>
+        <h2>Frequently asked</h2>
+      </header>
+      <div class="faq-list" id="faqList"></div>
+    </div>
+  </section>
+
+  <!-- ===== CTA band ===== -->
+  <section class="cta-band">
+    <div class="wrap cta-inner reveal">
+      <h2>Ready for a fresh cut?</h2>
+      <p>Book your chair in under a minute.</p>
+      <a href="#book" class="btn btn-lg btn-light">Book now</a>
+    </div>
+  </section>
+
   <!-- ===== Footer ===== -->
   <footer class="site-footer">
-    <div class="wrap footer-inner">
-      <p>&copy; <span id="year"></span> <span data-bind="businessName">Your Business</span>. All rights reserved.</p>
-      <p class="footer-sub">Online appointment requests · powered by email</p>
+    <div class="wrap footer-grid">
+      <div class="footer-col">
+        <div class="footer-brand">
+          <img src="logo.png" class="footer-logo" alt="" />
+          <span data-bind="businessName">Charles Barber</span>
+        </div>
+        <p class="footer-sub">Fresh cuts, classic service.</p>
+        <div class="socials" id="socials"></div>
+      </div>
+      <div class="footer-col">
+        <h4>Visit</h4>
+        <p><a id="footerAddr" target="_blank" rel="noopener"></a></p>
+      </div>
+      <div class="footer-col">
+        <h4>Hours</h4>
+        <ul class="footer-hours" id="footerHours"></ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p><a id="footerEmail" href="#"></a></p>
+        <p id="footerPhoneWrap"><a id="footerPhone" href="#"></a></p>
+      </div>
+    </div>
+    <div class="wrap footer-bottom">
+      <p>&copy; <span id="year"></span> <span data-bind="businessName">Charles Barber</span>. All rights reserved.</p>
+      <p class="footer-sub">Online booking · powered by email</p>
     </div>
   </footer>
 
-  <!-- ===== Success toast ===== -->
+  <!-- ===== Sticky mobile book bar ===== -->
+  <div class="mobile-bar">
+    <div class="mobile-status"><span class="status-dot"></span> <span id="mobileStatusText">—</span></div>
+    <a href="#book" class="btn btn-sm">Book now</a>
+  </div>
+
+  <!-- ===== Back to top ===== -->
+  <button class="to-top" id="toTop" type="button" aria-label="Back to top">↑</button>
+
+  <!-- ===== Toast ===== -->
   <div class="toast" id="toast" role="alert" aria-live="assertive">
     <span class="toast-icon" aria-hidden="true">✓</span>
     <span class="toast-msg" id="toastMsg">Request sent!</span>
