@@ -78,7 +78,8 @@ a { color: inherit; }
   border-bottom: 1px solid var(--line);
 }
 .header-inner { display: flex; align-items: center; justify-content: space-between; height: 68px; }
-.brand { display: flex; align-items: center; gap: .55rem; text-decoration: none; font-weight: 700; }
+.brand { display: flex; align-items: center; gap: .6rem; text-decoration: none; font-weight: 700; }
+.brand-logo { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 12px -4px rgba(20,40,32,.4); }
 .brand-mark, .brand-name {
   background: var(--grad-brand); -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
@@ -118,6 +119,16 @@ a { color: inherit; }
 
 /* hero card */
 .hero-card { display: flex; justify-content: center; }
+.hero-logo {
+  width: min(100%, 380px); height: auto; border-radius: 50%;
+  filter: drop-shadow(0 26px 44px rgba(20, 40, 32, .38));
+  animation: floaty 6s ease-in-out infinite;
+}
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+@media (prefers-reduced-motion: reduce) { .hero-logo { animation: none; } }
 .mini-cal {
   width: min(100%, 320px); background: var(--surface); border: 1px solid var(--line);
   border-top: 4px solid var(--purple);
