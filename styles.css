@@ -311,6 +311,9 @@ textarea { resize: vertical; }
 .hours-list .day { color: var(--ink-soft); }
 .hours-list .closed { color: var(--coral); font-weight: 500; }
 .hours-list li.today { font-weight: 700; background: color-mix(in srgb, var(--gold) 18%, var(--surface)); margin: 0 -.7rem; padding-inline: .7rem; border-radius: 9px; border-bottom-color: transparent; }
+.hours-note { display: flex; align-items: flex-start; gap: .5rem; margin: 1rem 0 0; padding: .7rem .85rem; font-size: .88rem; font-weight: 500; line-height: 1.45; color: var(--accent-dk); background: var(--accent-sf); border-left: 3px solid var(--accent); border-radius: var(--radius-sm); }
+.hours-note span { color: var(--accent); }
+html[data-theme="dark"] .hours-note { color: var(--ink); }
 .hours-card hr { border: none; border-top: 1px solid var(--line); margin: 1.3rem 0; }
 .contact-line { display: flex; align-items: center; gap: .6rem; margin: .5rem 0; font-size: .94rem; }
 .contact-line span { color: var(--accent2); }

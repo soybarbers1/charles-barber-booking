@@ -38,6 +38,9 @@ const CONFIG = {
     Sunday:    "8:00 AM – 9:00 PM",
   },
 
+  // ---- Note shown under the opening hours (leave "" to hide) ----
+  hoursNote: "Monday to Friday I'll be at Brothers Barbershop in Downtown Victoria.",
+
   // ---- Headline stats ----
   stats: [
     { value: 12,   suffix: "+", label: "Years in the chair" },
@@ -242,6 +245,12 @@ function renderHours() {
       <span class="${closed ? "closed" : ""}">${esc(val)}</span>
     </li>`;
   }).join("");
+
+  const noteEl = $("#hoursNote");
+  if (noteEl) {
+    if (CONFIG.hoursNote) noteEl.innerHTML = `<span aria-hidden="true">📍</span> ${esc(CONFIG.hoursNote)}`;
+    else noteEl.remove();
+  }
 }
 
 /* ---------- Contact ---------- */
