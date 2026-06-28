@@ -29,11 +29,11 @@ const CONFIG = {
 
   // ---- Opening hours (use "Closed" for days off) ----
   hours: {
-    Monday:    "Closed",
-    Tuesday:   "Closed",
-    Wednesday: "Closed",
-    Thursday:  "Closed",
-    Friday:    "8:00 AM – 9:00 PM",
+    Monday:    "7:00 PM – 10:00 PM",
+    Tuesday:   "7:00 PM – 10:00 PM",
+    Wednesday: "7:00 PM – 10:00 PM",
+    Thursday:  "7:00 PM – 10:00 PM",
+    Friday:    "7:00 PM – 10:00 PM",
     Saturday:  "8:00 AM – 9:00 PM",
     Sunday:    "8:00 AM – 9:00 PM",
   },
