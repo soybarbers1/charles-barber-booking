@@ -20,6 +20,18 @@ const CONFIG = {
    */
   web3formsKey: "be9d7c4a-10c5-4814-96d2-49cee5c0988d",
 
+  /*  CUSTOMER CONFIRMATION EMAIL  (optional, free via EmailJS)
+   *  When these are filled in, the customer automatically gets a
+   *  "we received your booking" email. Leave all three "" to skip it —
+   *  you (the owner) still get the booking email either way.
+   *  Step-by-step setup guide is at the very bottom of this file.
+   */
+  emailjs: {
+    publicKey:  "",   // EmailJS → Account → General → Public Key
+    serviceId:  "",   // EmailJS → Email Services → Service ID
+    templateId: "",   // EmailJS → Email Templates → Template ID
+  },
+
   // ---- Services offered ----
   services: [
     { icon: "✂️", name: "Regular Haircut", desc: "A clean, classic cut tailored to your style.",        price: "$25", duration: "30 min" },
@@ -640,7 +652,15 @@ async function sendRequest(d) {
   try {
     if (CONFIG.web3formsKey) await sendViaWeb3Forms(d);
     else await sendViaFormSubmit(d);
-    note("Thank you! Your request has been sent — we'll confirm by email soon.", "ok");
+
+    // Auto-confirmation to the customer (best-effort — the owner email above
+    // already went through, so a confirmation hiccup must not fail the booking).
+    let confirmed = false;
+    try { confirmed = await sendCustomerConfirmation(d); } catch (e2) { confirmed = false; }
+
+    note(confirmed
+      ? `Thank you! Your request has been sent — a confirmation email is on its way to ${d.email}.`
+      : "Thank you! Your request has been sent — we'll confirm by email soon.", "ok");
     toast("Request sent ✓");
     $("#bookingForm").reset();
     updateSummary();
@@ -683,6 +703,38 @@ async function sendViaWeb3Forms(d) {
   throw new Error(out.message || "Web3Forms rejected the request");
 }
 
+/* Auto-confirmation email to the customer via EmailJS (free, client-side).
+   Returns false (skips quietly) until CONFIG.emailjs is filled in. */
+async function sendCustomerConfirmation(d) {
+  const e = CONFIG.emailjs || {};
+  if (!e.publicKey || !e.serviceId || !e.templateId) return false;
+  const svc = CONFIG.services.find(s => s.name === d.service);
+  const res = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      service_id: e.serviceId,
+      template_id: e.templateId,
+      user_id: e.publicKey,
+      template_params: {
+        to_email: d.email,
+        to_name: d.name,
+        business_name: CONFIG.businessName,
+        service: d.service,
+        appt_date: prettyDate(d.date),
+        appt_time: prettyTime(d.time),
+        price: svc ? (svc.price || "—") : "—",
+        notes: d.notes || "—",
+        shop_email: CONFIG.ownerEmail,
+        shop_address: CONFIG.address || "",
+        reply_to: CONFIG.ownerEmail,
+      },
+    }),
+  });
+  if (!res.ok) throw new Error("EmailJS " + res.status + " " + (await res.text().catch(() => "")));
+  return true;
+}
+
 /* ---------- helpers ---------- */
 function note(msg, kind) { const el = $("#formNote"); el.textContent = msg; el.className = "form-note" + (kind ? " " + kind : ""); }
 function clearErrors(form) { $$(".invalid", form).forEach(el => el.classList.remove("invalid")); note(""); }
@@ -692,3 +744,49 @@ function toast(msg) {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 4000);
 }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+/* ============================================================
+   CUSTOMER CONFIRMATION EMAIL — one-time setup (free, ~5 min)
+   ------------------------------------------------------------
+   This sends the customer an automatic "we got your booking"
+   email. You (the owner) already get the booking email via
+   Web3Forms; this is the reply that goes back to the customer.
+
+   1. Go to https://www.emailjs.com and sign up (free: 200/month).
+   2. Email Services → Add New Service → connect your Gmail
+      (soybarbers1@gmail.com). Copy the SERVICE ID.
+   3. Email Templates → Create New Template. Set:
+        To Email:   {{to_email}}
+        From Name:  {{business_name}}
+        Reply To:   {{reply_to}}
+        Subject:    Thanks {{to_name}} — we got your booking request
+        Content (paste this):
+        ------------------------------------------------------
+        Hi {{to_name}},
+
+        Thanks for booking with {{business_name}}! We've received
+        your request and will confirm your time by reply shortly.
+
+        Your request:
+         • Service: {{service}}
+         • Date:    {{appt_date}}
+         • Time:    {{appt_time}}
+         • Price:   {{price}}
+         • Notes:   {{notes}}
+
+        Payment is cash only. Need to change something? Just reply
+        to this email.
+
+        See you soon,
+        {{business_name}}
+        {{shop_address}}
+        {{shop_email}}
+        ------------------------------------------------------
+      Save it and copy the TEMPLATE ID.
+   4. Account → General → copy your PUBLIC KEY.
+   5. Paste all three into the CONFIG.emailjs block at the top
+      of this file. Done — confirmations now send automatically.
+
+   (Keep EmailJS's default browser security on; no private key
+   is needed since this runs in the visitor's browser.)
+   ============================================================ */
