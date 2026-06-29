@@ -43,6 +43,19 @@ const CONFIG = {
   hoursNoteName: "Brothers Barbershop",
   hoursNoteAddress: "770 Fort St, Victoria, BC V8W 1H2, Canada",
 
+  // ---- Appointments already booked (shown on the availability calendar) ----
+  //  Add one line each time you take a booking so customers see the slot as taken.
+  //  date = "YYYY-MM-DD"  ·  time = "HH:MM" in 24-hour format (time is optional).
+  //  Replace the examples below with your real bookings, or empty it:  bookedSlots: [],
+  bookedSlots: [
+    { date: "2026-06-30", time: "19:30" },
+    { date: "2026-06-30", time: "20:30" },
+    { date: "2026-07-01", time: "20:00" },
+    { date: "2026-07-05", time: "10:00" },
+    { date: "2026-07-05", time: "14:30" },
+    { date: "2026-07-05", time: "16:00" },
+  ],
+
   // ---- Headline stats ----
   stats: [
     { value: 12,   suffix: "+", label: "Years in the chair" },
@@ -99,6 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateStatus();
   setInterval(updateStatus, 60000);
   setupDateConstraints();
+  renderCalendar();
   wireForm();
   wireSummary();
   wireScroll();
@@ -400,9 +414,115 @@ function setupDateConstraints() {
   dateEl.min = new Date(today - tz).toISOString().slice(0, 10);
 }
 
+/* ---------- Availability calendar ---------- */
+let calSelect = null;                       // set by renderCalendar — lets the date field drive the calendar
+function isSlotBooked(date, time) {
+  if (!date || !time) return false;
+  return (CONFIG.bookedSlots || []).some(s => s && s.date === date && s.time === time);
+}
+function renderCalendar() {
+  const host = $("#calendar");
+  if (!host) return;
+
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const isoOf = (d) => { const tz = d.getTimezoneOffset() * 60000; return new Date(d - tz).toISOString().slice(0, 10); };
+  const todayIso = isoOf(today);
+
+  // group booked times by date
+  const byDate = {};
+  (CONFIG.bookedSlots || []).forEach(s => {
+    if (!s || !s.date) return;
+    (byDate[s.date] = byDate[s.date] || []).push(s.time || "");
+  });
+  Object.values(byDate).forEach(a => a.sort());
+
+  let view = new Date(today.getFullYear(), today.getMonth(), 1);
+  let selected = null;
+
+  function detailHtml(id) {
+    const times = byDate[id] || [];
+    let h = `<div class="cal-detail-date">${esc(prettyDate(id))}</div>`;
+    if (times.length) {
+      h += `<div class="cal-detail-sub">Already booked:</div>
+            <div class="cal-times">${times.map(t => `<span class="cal-chip">${t ? esc(prettyTime(t)) : "Booked"}</span>`).join("")}</div>`;
+    } else {
+      h += `<div class="cal-free">✓ No bookings yet — you're clear to book this day.</div>`;
+    }
+    return h;
+  }
+
+  function draw() {
+    const y = view.getFullYear(), m = view.getMonth();
+    const monthLabel = view.toLocaleDateString(undefined, { month: "long", year: "numeric" });
+    const startDow = new Date(y, m, 1).getDay();
+    const total = new Date(y, m + 1, 0).getDate();
+    const atMin = y < today.getFullYear() || (y === today.getFullYear() && m <= today.getMonth());
+
+    let cells = "";
+    for (let i = 0; i < startDow; i++) cells += `<span class="cal-cell cal-empty"></span>`;
+    for (let d = 1; d <= total; d++) {
+      const date = new Date(y, m, d), id = isoOf(date);
+      const closed = !dayHours(DAYS[date.getDay()]);
+      const past = id < todayIso;
+      const n = (byDate[id] || []).length;
+      const cls = ["cal-cell", "cal-day"];
+      if (id === todayIso) cls.push("is-today");
+      if (past) cls.push("is-past");
+      if (closed) cls.push("is-closed");
+      if (n) cls.push("has-booked");
+      if (id === selected) cls.push("is-selected");
+      const dots = n ? `<span class="cal-dots">${'<span class="cal-dot"></span>'.repeat(Math.min(n, 3))}</span>` : "";
+      const aria = esc(prettyDate(id)) + (n ? `, ${n} booked` : closed ? ", closed" : "");
+      cells += `<button type="button" class="${cls.join(" ")}" data-date="${id}"${past || closed ? " disabled" : ""} aria-label="${aria}"><span class="cal-num">${d}</span>${dots}</button>`;
+    }
+
+    host.innerHTML = `
+      <div class="cal-head">
+        <button type="button" class="cal-nav" data-nav="-1"${atMin ? " disabled" : ""} aria-label="Previous month">‹</button>
+        <span class="cal-title">${esc(monthLabel)}</span>
+        <button type="button" class="cal-nav" data-nav="1" aria-label="Next month">›</button>
+      </div>
+      <div class="cal-grid cal-dow">${["Su","Mo","Tu","We","Th","Fr","Sa"].map(x => `<span>${x}</span>`).join("")}</div>
+      <div class="cal-grid cal-days">${cells}</div>
+      <div class="cal-legend">
+        <span><span class="cal-dot"></span> Booked</span>
+        <span><span class="cal-swatch is-today"></span> Today</span>
+        <span><span class="cal-swatch is-closed"></span> Closed</span>
+      </div>
+      <div class="cal-detail${selected ? " has" : ""}" id="calDetail">${selected ? detailHtml(selected) : ""}</div>`;
+  }
+
+  function pick(id) {
+    selected = id;
+    const dateEl = $("#date");
+    if (dateEl) { dateEl.value = id; dateEl.classList.remove("invalid"); }
+    updateSummary();
+    draw();
+  }
+
+  host.addEventListener("click", (e) => {
+    const nav = e.target.closest(".cal-nav");
+    if (nav && !nav.disabled) { view = new Date(view.getFullYear(), view.getMonth() + Number(nav.dataset.nav), 1); draw(); return; }
+    const day = e.target.closest(".cal-day");
+    if (day && !day.disabled) pick(day.dataset.date);
+  });
+
+  // when the user types/changes the date field directly, mirror it on the calendar
+  calSelect = (id) => {
+    if (!id) return;
+    selected = id;
+    const [yy, mm] = id.split("-").map(Number);
+    if (yy && mm) view = new Date(yy, mm - 1, 1);
+    draw();
+  };
+
+  draw();
+}
+
 /* ---------- Live booking summary ---------- */
 function wireSummary() {
   ["service", "date", "time"].forEach(id => $("#" + id).addEventListener("change", updateSummary));
+  $("#date").addEventListener("change", (e) => { if (calSelect) calSelect(e.target.value); });
   updateSummary();
 }
 function updateSummary() {
@@ -426,6 +546,9 @@ function updateSummary() {
   body.innerHTML = rows.map(([k, v]) =>
     `<div class="summary-row"><span class="sk">${esc(k)}</span><span class="sv">${esc(v)}</span></div>`).join("")
     + `<div class="summary-total"><span>Total</span><span class="sv">${esc(svc.price || "—")}</span></div>`;
+
+  if (isSlotBooked(date, time))
+    body.innerHTML += `<div class="summary-warn">⚠ That time is already booked — please pick another.</div>`;
 }
 
 /* ---------- Scroll: progress, back-to-top ---------- */
@@ -466,6 +589,12 @@ function wireForm() {
       problems.forEach(id => $("#" + id)?.classList.add("invalid"));
       note("Please fill in the highlighted fields.", "err");
       $("#" + problems[0])?.focus();
+      return;
+    }
+    if (isSlotBooked(data.date, data.time)) {
+      $("#time").classList.add("invalid");
+      note("That time is already booked — please choose another time.", "err");
+      $("#time").focus();
       return;
     }
     await sendRequest(data);
